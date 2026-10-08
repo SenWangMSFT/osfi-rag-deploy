@@ -1,0 +1,31 @@
+{
+  "description": "Answers questions about Canadian bank and credit-union annual reports from the Foundry IQ knowledge base, citing each passage.",
+  "definition": {
+    "kind": "prompt",
+    "model": "${CHAT_DEPLOYMENT}",
+    "instructions": "${AGENT_INSTRUCTIONS}",
+    "reasoning": {
+      "effort": "low"
+    },
+    "tools": [
+      {
+        "type": "mcp",
+        "server_label": "annual_reports_kb",
+        "server_url": "${AGENT_MCP_ENDPOINT}",
+        "require_approval": "never",
+        "allowed_tools": { "tool_names": ["knowledge_base_retrieve"] },
+        "project_connection_id": "${AGENT_CONNECTION}",
+        "headers": {
+          "x-ms-query-source-authorization": "{{search_auth_token}}"
+        }
+      }
+    ],
+    "structured_inputs": {
+      "search_auth_token": {
+        "description": "The signed-in user's Azure AI Search token. The knowledge base returns only passages this user may see.",
+        "required": true,
+        "schema": { "type": "string" }
+      }
+    }
+  }
+}

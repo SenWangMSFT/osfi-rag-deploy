@@ -1,0 +1,28 @@
+{
+  "name": "${KNOWLEDGE_BASE}",
+  "description": "Answers questions about Canadian bank and credit-union annual reports.",
+  "knowledgeSources": [
+    { "name": "${KNOWLEDGE_SOURCE}" }
+  ],
+  "models": [
+    {
+      "kind": "azureOpenAI",
+      "azureOpenAIParameters": {
+        "resourceUri": "${AZURE_OPENAI_ENDPOINT}",
+        "deploymentId": "${CHAT_DEPLOYMENT}",
+        "modelName": "${CHAT_MODEL}"
+      }
+    }
+  ],
+  "outputMode": "answerSynthesis",
+  "retrievalReasoningEffort": {
+    "kind": "low"
+  },
+  "retrievalInstructions": "All content is annual reports from Canadian financial institutions. When a question names an institution or fiscal year, scope the search to it.",
+  "answerInstructions": "Answer only from the retrieved sources. Cite every factual claim with [ref_id:N]. Quote exact figures — never round or restate. If the sources do not contain the answer, say so explicitly rather than inferring. Never cite a page number that appears inside the document text; cite only the retrieved source.",
+  "retrieveDefaults": {
+    "maxRuntimeInSeconds": 45,
+    "maxOutputDocuments": 12,
+    "maxOutputSizeInTokens": 16000
+  }
+}

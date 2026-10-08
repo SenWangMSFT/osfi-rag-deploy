@@ -1,0 +1,25 @@
+{
+  "name": "${KNOWLEDGE_SOURCE}",
+  "kind": "searchIndex",
+  "description": "Canadian bank and credit-union annual reports, chunked with page-level provenance.",
+  "searchIndexParameters": {
+    "searchIndexName": "${SEARCH_INDEX}",
+    "semanticConfigurationName": "annual-reports-semantic",
+    "sourceDataFields": [
+      { "name": "chunk_id" },
+      { "name": "doc_title" },
+      { "name": "institution" },
+      { "name": "fiscal_year" },
+      { "name": "page_number_from" },
+      { "name": "page_number_to" },
+      { "name": "source_file" },
+      { "name": "source_url" },
+      { "name": "document_id" },
+      { "name": "chunk_text" },
+      { "name": "bounding_polygons" }
+    ],
+    "searchFields": [
+      { "name": "chunk_text" }
+    ]
+  }
+}

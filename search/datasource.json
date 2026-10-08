@@ -1,0 +1,11 @@
+{
+  "name": "${SEARCH_DATASOURCE}",
+  "description": "Staging container the SharePoint sync copies new and edited PDFs into until they're indexed. Connects with the search service's managed identity. No deletion detection: the sync deletes staged files after indexing, and that must not delete their chunks.",
+  "type": "azureblob",
+  "credentials": {
+    "connectionString": "ResourceId=${STAGING_STORAGE_ACCOUNT_ID};"
+  },
+  "container": {
+    "name": "${STAGING_CONTAINER}"
+  }
+}

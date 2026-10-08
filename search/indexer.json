@@ -1,0 +1,20 @@
+{
+  "name": "${SEARCH_INDEXER}",
+  "description": "Staged PDFs -> Content Understanding chunks -> staging index, which the SharePoint sync copies into the chunk index. The sync starts each run. batchSize 1 so one slow 200+ page report can't fail a batch.",
+  "dataSourceName": "${SEARCH_DATASOURCE}",
+  "skillsetName": "${SEARCH_SKILLSET}",
+  "targetIndexName": "${SEARCH_STAGING_INDEX}",
+  "parameters": {
+    "batchSize": 1,
+    "maxFailedItems": -1,
+    "maxFailedItemsPerBatch": -1,
+    "configuration": {
+      "dataToExtract": "contentAndMetadata",
+      "parsingMode": "default",
+      "indexedFileNameExtensions": ".pdf",
+      "allowSkillsetToReadFileData": true
+    }
+  },
+  "fieldMappings": [],
+  "outputFieldMappings": []
+}

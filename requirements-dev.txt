@@ -1,0 +1,3 @@
+-r src/function_app/requirements.txt
+pytest>=8
+pypdf>=5

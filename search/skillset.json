@@ -1,0 +1,74 @@
+{
+  "name": "${SEARCH_SKILLSET}",
+  "description": "Content Understanding extraction and semantic chunking with page provenance, then embeddings. Index projections write one row per chunk to the staging index, with the IDs the sync job put on the staged blob; the job then copies the chunks into the chunk index with permissions and display fields.",
+  "skills": [
+    {
+      "@odata.type": "#Microsoft.Skills.Util.ContentUnderstandingSkill",
+      "name": "extract-and-chunk",
+      "description": "Markdown with tables, semantic chunks up to 750 tokens, page numbers and polygons (locationMetadata) for citations, and AI descriptions of charts.",
+      "context": "/document",
+      "modelName": "${EXTRACTION_MODEL}",
+      "modelDeployment": "${EXTRACTION_DEPLOYMENT}",
+      "extractionOptions": [ "locationMetadata" ],
+      "chunkingProperties": {
+        "method": "semantic",
+        "unit": "tokens",
+        "maximumLength": 750
+      },
+      "inputs": [
+        { "name": "file_data", "source": "/document/file_data" }
+      ],
+      "outputs": [
+        { "name": "text_sections", "targetName": "text_sections" }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill",
+      "name": "embed",
+      "description": "Chunk vectors; the index vectorizer uses the same deployment at query time.",
+      "context": "/document/text_sections/*",
+      "resourceUri": "${AZURE_OPENAI_ENDPOINT}",
+      "deploymentId": "${EMBEDDING_DEPLOYMENT}",
+      "modelName": "${EMBEDDING_MODEL}",
+      "dimensions": 3072,
+      "inputs": [
+        { "name": "text", "source": "/document/text_sections/*/content" }
+      ],
+      "outputs": [
+        { "name": "embedding", "targetName": "chunk_vector" }
+      ]
+    }
+  ],
+  "cognitiveServices": {
+    "@odata.type": "#Microsoft.Azure.Search.AIServicesByIdentity",
+    "description": "Foundry resource that runs and bills Content Understanding, reached with the search service identity.",
+    "subdomainUrl": "${FOUNDRY_ENDPOINT}",
+    "identity": null
+  },
+  "indexProjections": {
+    "selectors": [
+      {
+        "targetIndexName": "${SEARCH_STAGING_INDEX}",
+        "parentKeyFieldName": "parent_id",
+        "sourceContext": "/document/text_sections/*",
+        "mappings": [
+          { "name": "chunk_text", "source": "/document/text_sections/*/content" },
+          { "name": "chunk_vector", "source": "/document/text_sections/*/chunk_vector" },
+          { "name": "page_number_from", "source": "/document/text_sections/*/locationMetadata/pageNumberFrom" },
+          { "name": "page_number_to", "source": "/document/text_sections/*/locationMetadata/pageNumberTo" },
+          { "name": "ordinal_position", "source": "/document/text_sections/*/locationMetadata/ordinalPosition" },
+          { "name": "bounding_polygons", "source": "/document/text_sections/*/locationMetadata/source" },
+          { "name": "image_path", "source": "/document/text_sections/*/imagePath" },
+          { "name": "document_id", "source": "/document/document_id" },
+          { "name": "drive_id", "source": "/document/drive_id" },
+          { "name": "institution_key", "source": "/document/institution_key" },
+          { "name": "source_version", "source": "/document/source_version" },
+          { "name": "last_modified", "source": "/document/metadata_storage_last_modified" }
+        ]
+      }
+    ],
+    "parameters": {
+      "projectionMode": "skipIndexingParentDocuments"
+    }
+  }
+}

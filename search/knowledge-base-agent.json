@@ -1,0 +1,16 @@
+{
+  "name": "${AGENT_KNOWLEDGE_BASE}",
+  "description": "Passages from Canadian bank and credit-union annual reports, each with the PDF page it came from. Retrieval only: the calling agent writes the answer.",
+  "knowledgeSources": [
+    { "name": "${KNOWLEDGE_SOURCE}" }
+  ],
+  "outputMode": "extractiveData",
+  "retrievalReasoningEffort": {
+    "kind": "minimal"
+  },
+  "retrieveDefaults": {
+    "maxRuntimeInSeconds": 45,
+    "maxOutputDocuments": 12,
+    "maxOutputSizeInTokens": 16000
+  }
+}

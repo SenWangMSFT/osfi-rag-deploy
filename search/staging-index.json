@@ -1,0 +1,31 @@
+{
+  "name": "${SEARCH_STAGING_INDEX}",
+  "description": "The indexer's output: chunks of staged files, waiting for the SharePoint sync to copy them into the chunk index with permissions. No permission filtering, so the sync's managed identity can read them; no user or knowledge base queries this index. Vectors are retrievable so the sync can copy them.",
+  "fields": [
+    { "name": "chunk_id", "type": "Edm.String", "key": true, "searchable": true, "analyzer": "keyword", "filterable": true, "sortable": true, "retrievable": true },
+    { "name": "parent_id", "type": "Edm.String", "searchable": false, "filterable": true, "retrievable": true },
+
+    { "name": "document_id", "type": "Edm.String", "searchable": false, "filterable": true, "facetable": true, "retrievable": true },
+    { "name": "drive_id", "type": "Edm.String", "searchable": false, "filterable": true, "retrievable": true },
+    { "name": "institution_key", "type": "Edm.String", "searchable": false, "filterable": true, "facetable": true, "retrievable": true },
+    { "name": "source_version", "type": "Edm.String", "searchable": false, "filterable": true, "retrievable": true },
+    { "name": "last_modified", "type": "Edm.DateTimeOffset", "filterable": true, "retrievable": true },
+
+    { "name": "chunk_text", "type": "Edm.String", "searchable": false, "retrievable": true },
+    { "name": "chunk_vector", "type": "Collection(Edm.Single)", "searchable": true, "retrievable": true, "dimensions": 3072, "vectorSearchProfile": "staging-profile" },
+
+    { "name": "page_number_from", "type": "Edm.Int32", "retrievable": true },
+    { "name": "page_number_to", "type": "Edm.Int32", "retrievable": true },
+    { "name": "ordinal_position", "type": "Edm.Int32", "filterable": true, "sortable": true, "retrievable": true },
+    { "name": "bounding_polygons", "type": "Edm.String", "searchable": false, "retrievable": true },
+    { "name": "image_path", "type": "Edm.String", "searchable": false, "retrievable": true }
+  ],
+  "vectorSearch": {
+    "algorithms": [
+      { "name": "staging-alg", "kind": "exhaustiveKnn", "exhaustiveKnnParameters": { "metric": "cosine" } }
+    ],
+    "profiles": [
+      { "name": "staging-profile", "algorithm": "staging-alg" }
+    ]
+  }
+}

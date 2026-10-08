@@ -1,0 +1,67 @@
+{
+  "name": "${SEARCH_INDEX}",
+  "description": "One row per Content Understanding chunk of a SharePoint document, copied here by the SharePoint sync from the staging index with the institution's Entra groups (GroupIds) and display fields. Keys are the document ID (base64url) and the chunk's position. Parent (document) fields are repeated on every chunk; page provenance comes from locationMetadata.",
+  "fields": [
+    { "name": "chunk_id", "type": "Edm.String", "key": true, "searchable": true, "analyzer": "keyword", "filterable": true, "sortable": true, "retrievable": true },
+
+    { "name": "document_id", "type": "Edm.String", "searchable": false, "filterable": true, "facetable": true, "retrievable": true },
+    { "name": "drive_id", "type": "Edm.String", "searchable": false, "filterable": true, "retrievable": true },
+    { "name": "institution_key", "type": "Edm.String", "searchable": false, "filterable": true, "facetable": true, "retrievable": true },
+    { "name": "source_version", "type": "Edm.String", "searchable": false, "filterable": true, "retrievable": true },
+    { "name": "GroupIds", "type": "Collection(Edm.String)", "permissionFilter": "groupIds", "filterable": true, "retrievable": false },
+    { "name": "UserIds", "type": "Collection(Edm.String)", "permissionFilter": "userIds", "filterable": true, "retrievable": false },
+
+    { "name": "doc_title", "type": "Edm.String", "searchable": true, "filterable": true, "facetable": true, "retrievable": true },
+    { "name": "institution", "type": "Edm.String", "searchable": true, "filterable": true, "facetable": true, "retrievable": true },
+    { "name": "fiscal_year", "type": "Edm.String", "searchable": false, "filterable": true, "facetable": true, "sortable": true, "retrievable": true },
+    { "name": "source_file", "type": "Edm.String", "searchable": false, "filterable": true, "facetable": true, "retrievable": true },
+    { "name": "source_url", "type": "Edm.String", "searchable": false, "retrievable": true },
+    { "name": "last_modified", "type": "Edm.DateTimeOffset", "filterable": true, "sortable": true, "retrievable": true },
+
+    { "name": "chunk_text", "type": "Edm.String", "searchable": true, "analyzer": "en.microsoft", "retrievable": true },
+    { "name": "chunk_vector", "type": "Collection(Edm.Single)", "searchable": true, "retrievable": false, "dimensions": 3072, "vectorSearchProfile": "hnsw-profile" },
+
+    { "name": "page_number_from", "type": "Edm.Int32", "filterable": true, "sortable": true, "retrievable": true },
+    { "name": "page_number_to", "type": "Edm.Int32", "filterable": true, "retrievable": true },
+    { "name": "ordinal_position", "type": "Edm.Int32", "filterable": true, "sortable": true, "retrievable": true },
+    { "name": "bounding_polygons", "type": "Edm.String", "searchable": false, "retrievable": true },
+    { "name": "image_path", "type": "Edm.String", "searchable": false, "retrievable": true }
+  ],
+  "permissionFilterOption": "enabled",
+  "semantic": {
+    "defaultConfiguration": "annual-reports-semantic",
+    "configurations": [
+      {
+        "name": "annual-reports-semantic",
+        "prioritizedFields": {
+          "titleField": { "fieldName": "doc_title" },
+          "prioritizedContentFields": [ { "fieldName": "chunk_text" } ],
+          "prioritizedKeywordsFields": [ { "fieldName": "institution" } ]
+        }
+      }
+    ]
+  },
+  "vectorSearch": {
+    "algorithms": [
+      {
+        "name": "hnsw-alg",
+        "kind": "hnsw",
+        "hnswParameters": { "metric": "cosine", "m": 4, "efConstruction": 400, "efSearch": 500 }
+      }
+    ],
+    "profiles": [
+      { "name": "hnsw-profile", "algorithm": "hnsw-alg", "vectorizer": "aoai-vectorizer" }
+    ],
+    "vectorizers": [
+      {
+        "name": "aoai-vectorizer",
+        "kind": "azureOpenAI",
+        "azureOpenAIParameters": {
+          "resourceUri": "${AZURE_OPENAI_ENDPOINT}",
+          "deploymentId": "${EMBEDDING_DEPLOYMENT}",
+          "modelName": "${EMBEDDING_MODEL}"
+        }
+      }
+    ]
+  }
+}
